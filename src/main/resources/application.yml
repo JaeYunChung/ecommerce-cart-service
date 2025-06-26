@@ -1,0 +1,26 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: ecommerce-cart-service
+  cloud:
+    function:
+      definition: sendOrderInfo
+    stream:
+      bindings:
+        sendOrderInfo-out-0:
+          destination: cart-order-topic
+          group: my-group
+      kafka:
+        binder:
+          brokers: localhost:9092
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3309/order-db
+    username: root
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQLDialect
+
