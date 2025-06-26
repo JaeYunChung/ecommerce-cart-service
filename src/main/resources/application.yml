@@ -16,7 +16,7 @@ spring:
           brokers: localhost:9092
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3309/order-db
+    url: jdbc:mysql://localhost:3309/cart-db
     username: root
     password: 1234
   jpa:

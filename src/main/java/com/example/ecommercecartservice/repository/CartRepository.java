@@ -16,9 +16,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     void deleteAllByMemberIdAndProductSet(@Param("memberId") Long memberId,
                                            @Param("productSet") Set<String> productSet);
 
-    @Modifying
-    @Query("insert into Cart (select dto.memberId,  from  where )")
-    void insertCartInfo(CartOrderInfoDto dto);
 
     @Modifying
     @Query("update Cart set qty=qty+1 where memberId=:memberId and productCode=:productCode")

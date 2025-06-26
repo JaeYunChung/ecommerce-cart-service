@@ -6,6 +6,7 @@ import com.example.ecommercecartservice.domain.dto.CartOrderInfoDto;
 import com.example.ecommercecartservice.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,10 +27,12 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("성공적으로 상품을 장바구니에 넣었습니다.");
     }
-    @PutMapping("/cart/order/rollback")
-    public void rollbackByException(@RequestBody CartOrderInfoDto dto){
+    @PostMapping("/cart/order/rollback")
+    public ResponseEntity<?> rollbackByException(@RequestBody CartOrderInfoDto dto){
         cartService.rollbackCartProductInfoWhenOccurException(dto);
         log.info("장바구니 정보가 복원되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("장바구니 정보가 복원되었습니다.");
     }
     @PostMapping("/cart/order/product")
     public void orderCartProduct(@RequestBody CartOrderInfoDto dto){
