@@ -1,7 +1,7 @@
 package com.example.ecommercecartservice.service;
 
 import com.example.ecommercecartservice.domain.Cart;
-import com.example.ecommercecartservice.domain.dto.CartOrderInfoDto;
+import com.example.ecommercecartservice.domain.dto.OrderInfoDto;
 import com.example.ecommercecartservice.repository.CartRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,29 +23,31 @@ public class CartService {
         cartRepository.save(cart);
     }
     @Transactional
-    public void sendOrderInfo(CartOrderInfoDto dto){
+    public void sendOrderInfo(List<OrderInfoDto> dto){
+        if (dto.isEmpty()){
+            throw new IllegalArgumentException("주문할 물건이 없습니다.");
+        }
         streamBridge.send("sendOrderInfo-out-0",
                 MessageBuilder.withPayload(dto).build());
-        Long memberId = dto.getMemberId();
-        Set<String> deleteProductList = dto.getOrderMap().keySet();
-        cartRepository.deleteAllByMemberIdAndProductSet(memberId, deleteProductList);
+        Long memberId = dto.getFirst().memberId();
+        Set<String> deleteProductList = dto.stream().map(OrderInfoDto::productCode).collect(Collectors.toSet());
+        cartRepository.deleteAllByMemberIdAndProductCodeSet(memberId, deleteProductList);
     }
     @Transactional
-    public void rollbackCartProductInfoWhenOccurException(CartOrderInfoDto dto){
+    public void rollbackCartProductInfoWhenOccurException(List<OrderInfoDto> dto){
         List<Cart> cartList = new ArrayList<>();
-        Map<String, Integer> orderMap = dto.getOrderMap();
-        for (String productCode:orderMap.keySet()){
+        for (OrderInfoDto order : dto){
             Cart cart = Cart.builder()
-                    .memberId(dto.getMemberId())
-                    .productCode(productCode)
-                    .qty(orderMap.get(productCode))
+                    .memberId(order.memberId())
+                    .productCode(order.productCode())
+                    .qty(order.qty())
                     .build();
             cartList.add(cart);
         }
         cartRepository.saveAll(cartList);
     }
     @Transactional
-    public void updateCartProductQuantityPlusOne(Long memberId, String productCode){
+    public void increaseQuantity(Long memberId, String productCode){
         cartRepository.updateQuantityByMemberIdAndProductCode(memberId, productCode);
     }
 }

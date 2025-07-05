@@ -9,7 +9,7 @@ spring:
     stream:
       bindings:
         sendOrderInfo-out-0:
-          destination: cart-order-topic
+          destination: input-order-topic
           group: my-group
       kafka:
         binder:
